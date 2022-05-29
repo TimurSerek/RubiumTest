@@ -1,8 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_view.dart';
 
 import '../controller/user_list_controller.dart';
 
@@ -13,6 +11,14 @@ class UserDetailsView extends GetView<UserListController>{
   Widget build(BuildContext context) {
     return Obx(
       ()=> Scaffold(
+        appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_outlined),
+              onPressed: () {
+                controller.toUserList();
+              },
+            )
+        ),
         body: Container(
           width: double.infinity,
           child: Column(
@@ -26,7 +32,10 @@ class UserDetailsView extends GetView<UserListController>{
               const SizedBox(
                 height: 20.0,
               ),
-              Text(controller.selectedUser().first.name?.first ?? ''),
+              Text('${controller.selectedUser().first.name?.title ?? ''} '
+                  '${controller.selectedUser().first.name?.first ?? ''} '
+                  '${controller.selectedUser().first.name?.last ?? ''}'
+              ),
               const SizedBox(
                 height: 10.0,
               ),

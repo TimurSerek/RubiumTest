@@ -25,6 +25,9 @@ class UserListController extends GetxController {
 
   void showSearchTextField() {
     isSearching.value = !isSearching.value;
+    if (!isSearching.value) {
+      searchQuery.value = '';
+    }
   }
 
   Future getUserList() async {
@@ -34,12 +37,18 @@ class UserListController extends GetxController {
     userList.value = userModel.results ?? [];
   }
 
-  void showUserDetails(int index){
+  void showUserDetails(int index) {
     selectedUser.insert(0, userList[index]);
     Get.toNamed(Routes.detailsUser);
   }
 
-  void goBack() {
+  void toLoginScreen() {
+    GetStorage().write('isUserLogin', false);
+    GetStorage().write('userName', '');
+    Get.offNamed(Routes.login);
+  }
+
+  void toUserList() {
     Get.back();
   }
 }

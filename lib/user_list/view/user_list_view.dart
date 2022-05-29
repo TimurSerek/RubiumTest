@@ -11,14 +11,6 @@ class UserListView extends GetView<UserListController> {
     return Obx(
       () => Scaffold(
         appBar: AppBar(
-          leading: !controller.isSearching()
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back_outlined),
-                  onPressed: () {
-                    controller.goBack();
-                  },
-                )
-              : null,
           title: !controller.isSearching()
               ? Center(child: Text(controller.userName()))
               : TextField(
@@ -32,95 +24,128 @@ class UserListView extends GetView<UserListController> {
                   ),
                 ),
           actions: [
-            IconButton(
+            !controller.isSearching()
+            ? PopupMenuButton(
+              onSelected: (value){
+                  if(value == 'search'){
+                    controller.showSearchTextField();
+                  } else if(value == 'exit'){
+                    controller.toLoginScreen();
+                  }
+              },
+                itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'search',
+                          child: Row(
+                        children: const [
+                          Icon(Icons.search, color: Colors.black,),
+                          SizedBox(width: 10),
+                          Text('Поиск'),
+                        ],
+                      )),
+                      PopupMenuItem(
+                        value: 'exit',
+                          child: Row(
+                        children: const [
+                          Icon(Icons.exit_to_app, color: Colors.black,),
+                          SizedBox(width: 10),
+                          Text('Выход'),
+                        ],
+                      ))
+                    ])
+            : IconButton(
               onPressed: () {
                 controller.showSearchTextField();
               },
-              icon: !controller.isSearching()
-                  ? const Icon(Icons.search)
-                  : const Icon(Icons.clear),
-            )
+              icon: const Icon(Icons.clear),
+            ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.only(left: 16.0, top: 20.0, right: 16.0),
-          child: ListView(
-            children: controller.searchQuery() != ''
-                ? controller.userList().map(
-                  (user) {
-                return user.name!.first!.toLowerCase().contains(
-                    controller.searchQuery.toLowerCase())
-                    ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: GestureDetector(
-                    onTap: (){
-                      final index = controller.userList.indexOf(user);
-                      controller.showUserDetails(index);
-                    },
-                    child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white70,
-                            border: Border.all(),
-                            borderRadius:
-                            const BorderRadius.all(Radius.circular(10))),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 8.0),
-                              child: CircleAvatar(
-                                radius: 30,
-                                backgroundImage:
-                                NetworkImage(user.picture?.medium ?? ''),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(user.name?.first ?? ''),
-                          ],
-                        )),
-                  ),
-                )
-                    : Container();
-              },
-            ).toList()
-            : controller.userList().map(
-              (user) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: GestureDetector(
-                    onTap: (){
-                      final index = controller.userList.indexOf(user);
-                      controller.showUserDetails(index);
-                    },
-                    child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white70,
-                            border: Border.all(),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10))),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 8.0),
-                              child: CircleAvatar(
-                                radius: 30,
-                                backgroundImage:
-                                    NetworkImage(user.picture?.medium ?? ''),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(user.name?.first ?? ''),
-                          ],
-                        )),
-                  ),
-                );
-              },
-            ).toList(),
+        body: RefreshIndicator(
+          onRefresh: () => controller.getUserList(),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16.0, top: 20.0, right: 16.0),
+            child: ListView(
+              children: controller.searchQuery() != ''
+                  ? controller.userList().map(
+                      (user) {
+                        return user.name!.first!
+                                .toLowerCase()
+                                .contains(controller.searchQuery.toLowerCase())
+                            ? Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    final index =
+                                        controller.userList.indexOf(user);
+                                    controller.showUserDetails(index);
+                                  },
+                                  child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.white70,
+                                          border: Border.all(),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(10))),
+                                      child: Row(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8.0, horizontal: 8.0),
+                                            child: CircleAvatar(
+                                              radius: 30,
+                                              backgroundImage: NetworkImage(
+                                                  user.picture?.medium ?? ''),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          Text(user.name?.first ?? ''),
+                                        ],
+                                      )),
+                                ),
+                              )
+                            : Container();
+                      },
+                    ).toList()
+                  : controller.userList().map(
+                      (user) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              final index = controller.userList.indexOf(user);
+                              controller.showUserDetails(index);
+                            },
+                            child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white70,
+                                    border: Border.all(),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10))),
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 8.0),
+                                      child: CircleAvatar(
+                                        radius: 30,
+                                        backgroundImage: NetworkImage(
+                                            user.picture?.medium ?? ''),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(user.name?.first ?? ''),
+                                  ],
+                                )),
+                          ),
+                        );
+                      },
+                    ).toList(),
+            ),
           ),
         ),
       ),
